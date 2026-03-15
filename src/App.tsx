@@ -4,6 +4,8 @@
  */
 
 import React, { useState, useRef, useEffect } from 'react';
+import { Routes, Route, Link, useNavigate, useLocation } from 'react-router-dom';
+import { Helmet } from 'react-helmet-async';
 import { 
   Building2, 
   Sparkles, 
@@ -63,8 +65,10 @@ const ThemeToggle = ({ theme, toggleTheme }: { theme: 'dark' | 'light', toggleTh
   );
 };
 
-const Navbar = ({ onNavClick, theme, toggleTheme, currentView }: { onNavClick: (section: string) => void, theme: 'dark' | 'light', toggleTheme: () => void, currentView: string }) => {
+const Navbar = ({ theme, toggleTheme }: { theme: 'dark' | 'light', toggleTheme: () => void }) => {
   const [isScrolled, setIsScrolled] = useState(false);
+  const location = useLocation();
+  const navigate = useNavigate();
 
   useEffect(() => {
     const handleScroll = () => setIsScrolled(window.scrollY > 20);
@@ -72,31 +76,50 @@ const Navbar = ({ onNavClick, theme, toggleTheme, currentView }: { onNavClick: (
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
+  const handleNavClick = (path: string) => {
+    if (path.startsWith('#')) {
+      if (location.pathname !== '/') {
+        navigate('/');
+        setTimeout(() => {
+          document.getElementById(path.substring(1))?.scrollIntoView({ behavior: 'smooth' });
+        }, 100);
+      } else {
+        document.getElementById(path.substring(1))?.scrollIntoView({ behavior: 'smooth' });
+      }
+    } else {
+      navigate(path);
+    }
+  };
+
   return (
     <nav className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${isScrolled ? 'py-4' : 'py-8'}`}>
       <div className="max-w-7xl mx-auto px-6">
         <div className={`glass rounded-3xl border border-border/50 flex items-center justify-between px-8 py-4 transition-all duration-500 ${isScrolled ? 'shadow-2xl shadow-black/20' : ''}`}>
-          <div 
+          <Link 
+            to="/"
             className="flex items-center gap-3 cursor-pointer group"
-            onClick={() => onNavClick('landing')}
           >
             <div className="w-10 h-10 bg-primary rounded-xl flex items-center justify-center shadow-lg shadow-primary/20 group-hover:scale-110 transition-transform">
               <Building2 className="text-primary-foreground w-6 h-6" />
             </div>
             <span className="text-xl font-bold text-foreground tracking-tighter">ListingPilot</span>
-          </div>
+          </Link>
           
           <div className="hidden md:flex items-center gap-10">
-            {['Features', 'Pricing', 'Testimonials'].map((item) => (
-              <button 
-                key={item}
-                onClick={() => onNavClick(item.toLowerCase())}
-                className={`text-[10px] font-bold uppercase tracking-[0.2em] transition-all relative group ${currentView === item.toLowerCase() ? 'text-primary' : 'text-muted-foreground hover:text-foreground'}`}
-              >
-                {item}
-                <span className={`absolute -bottom-1 left-0 h-0.5 bg-primary transition-all ${currentView === item.toLowerCase() ? 'w-full' : 'w-0 group-hover:w-full'}`} />
-              </button>
-            ))}
+            <button 
+              onClick={() => handleNavClick('#features')}
+              className={`text-[10px] font-bold uppercase tracking-[0.2em] transition-all relative group ${location.hash === '#features' ? 'text-primary' : 'text-muted-foreground hover:text-foreground'}`}
+            >
+              Features
+              <span className={`absolute -bottom-1 left-0 h-0.5 bg-primary transition-all ${location.hash === '#features' ? 'w-full' : 'w-0 group-hover:w-full'}`} />
+            </button>
+            <Link 
+              to="/pricing"
+              className={`text-[10px] font-bold uppercase tracking-[0.2em] transition-all relative group ${location.pathname === '/pricing' ? 'text-primary' : 'text-muted-foreground hover:text-foreground'}`}
+            >
+              Pricing
+              <span className={`absolute -bottom-1 left-0 h-0.5 bg-primary transition-all ${location.pathname === '/pricing' ? 'w-full' : 'w-0 group-hover:w-full'}`} />
+            </Link>
           </div>
 
           <div className="flex items-center gap-4">
@@ -105,12 +128,6 @@ const Navbar = ({ onNavClick, theme, toggleTheme, currentView }: { onNavClick: (
               className="p-3 rounded-xl glass hover:bg-foreground/5 transition-all text-muted-foreground hover:text-foreground"
             >
               {theme === 'dark' ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
-            </button>
-            <button 
-              onClick={() => onNavClick('generate')}
-              className="bg-primary text-primary-foreground px-8 py-3 rounded-xl text-[10px] font-bold uppercase tracking-[0.2em] hover:opacity-90 transition-all shadow-lg shadow-primary/10 active:scale-95"
-            >
-              Launch App
             </button>
           </div>
         </div>
@@ -211,7 +228,8 @@ const MockupPreview = () => {
   );
 };
 
-const Hero = ({ onStart }: { onStart: (tool: 'generate' | 'optimize') => void }) => {
+const Hero = () => {
+  const navigate = useNavigate();
   return (
     <section id="hero" className="relative min-h-screen flex items-center pt-32 pb-20 overflow-hidden grid-bg">
       {/* Ambient Light Effects */}
@@ -253,14 +271,14 @@ const Hero = ({ onStart }: { onStart: (tool: 'generate' | 'optimize') => void })
           </p>
           <div className="flex flex-col sm:flex-row gap-6">
             <button 
-              onClick={() => onStart('generate')}
+              onClick={() => navigate('/app?tool=generate')}
               className="group bg-primary text-primary-foreground px-10 py-5 rounded-2xl font-bold uppercase tracking-widest text-xs flex items-center justify-center gap-3 transition-all hover:scale-105 hover:shadow-[0_20px_40px_rgba(0,0,0,0.2)] dark:hover:shadow-[0_20px_40px_rgba(255,255,255,0.1)] active:scale-95"
             >
               Start Generating
               <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
             </button>
             <button 
-              onClick={() => onStart('optimize')}
+              onClick={() => navigate('/app?tool=optimize')}
               className="glass hover:bg-foreground/5 text-foreground px-10 py-5 rounded-2xl font-bold uppercase tracking-widest text-xs flex items-center justify-center gap-3 transition-all hover:scale-105 active:scale-95"
             >
               Optimize URL
@@ -461,7 +479,7 @@ const Testimonials = () => {
   );
 };
 
-const Footer = ({ onNavClick }: { onNavClick: (view: string) => void }) => {
+const Footer = () => {
   return (
     <footer className="py-20 border-t border-border bg-background">
       <div className="max-w-7xl mx-auto px-6">
@@ -481,9 +499,9 @@ const Footer = ({ onNavClick }: { onNavClick: (view: string) => void }) => {
           <div>
             <h4 className="text-foreground font-bold mb-8 uppercase tracking-widest text-[10px]">Product</h4>
             <ul className="space-y-4 text-sm text-muted-foreground font-medium">
-              <li><button onClick={() => onNavClick('generate')} className="hover:text-foreground transition-colors">Generate Listing</button></li>
-              <li><button onClick={() => onNavClick('optimize')} className="hover:text-foreground transition-colors">Optimize Listing</button></li>
-              <li><button onClick={() => onNavClick('pricing')} className="hover:text-foreground transition-colors">Pricing Plans</button></li>
+              <li><Link to="/app?tool=generate" className="hover:text-foreground transition-colors">Generate Listing</Link></li>
+              <li><Link to="/app?tool=optimize" className="hover:text-foreground transition-colors">Optimize Listing</Link></li>
+              <li><Link to="/pricing" className="hover:text-foreground transition-colors">Pricing Plans</Link></li>
               <li><button className="hover:text-foreground transition-colors opacity-50 cursor-not-allowed">API Access (Beta)</button></li>
             </ul>
           </div>
@@ -491,10 +509,10 @@ const Footer = ({ onNavClick }: { onNavClick: (view: string) => void }) => {
           <div>
             <h4 className="text-foreground font-bold mb-8 uppercase tracking-widest text-[10px]">Legal & Support</h4>
             <ul className="space-y-4 text-sm text-muted-foreground font-medium">
-              <li><button onClick={() => onNavClick('contact')} className="hover:text-foreground transition-colors">Contact Support</button></li>
-              <li><button onClick={() => onNavClick('privacy')} className="hover:text-foreground transition-colors">Privacy Policy</button></li>
-              <li><button onClick={() => onNavClick('terms')} className="hover:text-foreground transition-colors">Terms of Service</button></li>
-              <li><button onClick={() => onNavClick('refund')} className="hover:text-foreground transition-colors">Refund Policy</button></li>
+              <li><Link to="/contact" className="hover:text-foreground transition-colors">Contact Support</Link></li>
+              <li><Link to="/privacy-policy" className="hover:text-foreground transition-colors">Privacy Policy</Link></li>
+              <li><Link to="/terms-of-service" className="hover:text-foreground transition-colors">Terms of Service</Link></li>
+              <li><Link to="/refund-policy" className="hover:text-foreground transition-colors">Refund Policy</Link></li>
             </ul>
           </div>
         </div>
@@ -512,24 +530,24 @@ const Footer = ({ onNavClick }: { onNavClick: (view: string) => void }) => {
   );
 };
 
-const LegalLayout = ({ title, children, onBack }: { title: string, children: React.ReactNode, onBack: () => void }) => {
+const LegalLayout = ({ title, children }: { title: string, children: React.ReactNode }) => {
   return (
     <div className="min-h-screen bg-background pt-32 pb-20 px-6">
       <div className="max-w-3xl mx-auto">
-        <button 
-          onClick={onBack}
+        <Link 
+          to="/"
           className="flex items-center gap-2 text-muted-foreground hover:text-foreground text-[10px] font-bold uppercase tracking-widest mb-12 transition-colors group"
         >
           <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
           Back to Home
-        </button>
+        </Link>
         
         <div className="mb-16">
           <h1 className="text-5xl md:text-6xl font-bold text-foreground tracking-tighter mb-4">{title}</h1>
           <div className="w-20 h-1.5 bg-primary rounded-full" />
         </div>
 
-        <div className="prose prose-invert max-w-none prose-headings:text-foreground prose-p:text-muted-foreground prose-p:leading-relaxed prose-li:text-muted-foreground prose-strong:text-foreground">
+        <div className="prose dark:prose-invert max-w-none prose-headings:text-foreground prose-p:text-muted-foreground prose-p:leading-relaxed prose-li:text-muted-foreground prose-strong:text-foreground">
           {children}
         </div>
       </div>
@@ -537,7 +555,8 @@ const LegalLayout = ({ title, children, onBack }: { title: string, children: Rea
   );
 };
 
-const PricingPage = ({ onStart }: { onStart: (tool: 'generate' | 'optimize') => void }) => {
+const PricingPage = () => {
+  const navigate = useNavigate();
   const plans = [
     {
       name: "Free",
@@ -633,7 +652,7 @@ const PricingPage = ({ onStart }: { onStart: (tool: 'generate' | 'optimize') => 
               </div>
 
               <button 
-                onClick={() => p.name === "Agency" ? null : onStart('generate')}
+                onClick={() => p.name === "Agency" ? navigate('/contact') : navigate('/app?tool=generate')}
                 className={`w-full py-6 rounded-2xl font-bold uppercase tracking-widest text-xs transition-all hover:scale-[1.02] active:scale-95 ${p.popular ? 'bg-primary text-primary-foreground shadow-xl shadow-primary/20' : 'glass text-foreground hover:bg-foreground/5'}`}
               >
                 {p.cta}
@@ -643,7 +662,7 @@ const PricingPage = ({ onStart }: { onStart: (tool: 'generate' | 'optimize') => 
         </div>
 
         <div className="glass p-16 rounded-[4rem] border border-border/50 text-center relative overflow-hidden">
-          <div className="absolute top-0 left-0 w-full h-full bg-grid-white/[0.02] -z-10" />
+          <div className="absolute top-0 left-0 w-full h-full bg-foreground/[0.02] -z-10" />
           <h2 className="text-4xl font-bold text-foreground mb-8 tracking-tight">Who is ListingPilot AI for?</h2>
           <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-12">
             {[
@@ -667,9 +686,12 @@ const PricingPage = ({ onStart }: { onStart: (tool: 'generate' | 'optimize') => 
   );
 };
 
-const TermsPage = ({ onBack }: { onBack: () => void }) => {
+const TermsPage = () => {
   return (
-    <LegalLayout title="Terms of Service" onBack={onBack}>
+    <LegalLayout title="Terms of Service">
+      <Helmet>
+        <title>ListingPilot AI Terms of Service</title>
+      </Helmet>
       <p className="text-sm italic mb-8">Last Updated: March 15, 2026</p>
       
       <section className="mb-12">
@@ -729,9 +751,12 @@ const TermsPage = ({ onBack }: { onBack: () => void }) => {
   );
 };
 
-const PrivacyPage = ({ onBack }: { onBack: () => void }) => {
+const PrivacyPage = () => {
   return (
-    <LegalLayout title="Privacy Policy" onBack={onBack}>
+    <LegalLayout title="Privacy Policy">
+      <Helmet>
+        <title>ListingPilot AI Privacy Policy</title>
+      </Helmet>
       <p className="text-sm italic mb-8">Last Updated: March 15, 2026</p>
       
       <section className="mb-12">
@@ -796,9 +821,12 @@ const PrivacyPage = ({ onBack }: { onBack: () => void }) => {
   );
 };
 
-const RefundPage = ({ onBack }: { onBack: () => void }) => {
+const RefundPage = () => {
   return (
-    <LegalLayout title="Refund Policy" onBack={onBack}>
+    <LegalLayout title="Refund Policy">
+      <Helmet>
+        <title>ListingPilot AI Refund Policy</title>
+      </Helmet>
       <p className="text-sm italic mb-8">Last Updated: March 15, 2026</p>
       
       <section className="mb-12">
@@ -845,17 +873,20 @@ const RefundPage = ({ onBack }: { onBack: () => void }) => {
   );
 };
 
-const ContactPage = ({ onBack }: { onBack: () => void }) => {
+const ContactPage = () => {
   return (
     <div className="min-h-screen bg-background pt-32 pb-20 px-6">
+      <Helmet>
+        <title>Contact Support – ListingPilot AI</title>
+      </Helmet>
       <div className="max-w-3xl mx-auto">
-        <button 
-          onClick={onBack}
+        <Link 
+          to="/"
           className="flex items-center gap-2 text-muted-foreground hover:text-foreground text-[10px] font-bold uppercase tracking-widest mb-12 transition-colors group"
         >
           <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
           Back to Home
-        </button>
+        </Link>
         
         <div className="mb-16">
           <h1 className="text-5xl md:text-6xl font-bold text-foreground tracking-tighter mb-4">Contact Us</h1>
@@ -1693,15 +1724,116 @@ const ResultCard = ({ title, content, onCopy, isLong, icon }: { title: string, c
 
 // --- Main App ---
 
+const ScrollToTop = () => {
+  const { pathname } = useLocation();
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [pathname]);
+  return null;
+};
+
+const HomePage = () => {
+  const navigate = useNavigate();
+  return (
+    <main>
+      <Helmet>
+        <title>ListingPilot AI – AI Powered Real Estate Listing Generator</title>
+      </Helmet>
+      <Hero />
+      <TrustSection />
+      <Features />
+      <Pricing />
+      <Testimonials />
+      
+      <section className="py-32 relative overflow-hidden">
+        <div className="absolute inset-0 bg-foreground/[0.02] -z-10" />
+        <div className="max-w-4xl mx-auto px-6 text-center">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+          >
+            <h2 className="text-5xl md:text-6xl font-bold mb-8 tracking-tighter">Ready to transform your property marketing?</h2>
+            <p className="text-muted-foreground text-xl mb-12 font-medium">Join thousands of agents and hosts who are already using ListingPilot AI to close more deals.</p>
+            <button 
+              onClick={() => navigate('/app?tool=generate')}
+              className="bg-primary hover:opacity-90 text-primary-foreground px-12 py-6 rounded-2xl font-bold text-lg transition-all shadow-2xl shadow-primary/20 transform hover:scale-105 active:scale-95 uppercase tracking-widest text-xs"
+            >
+              Get Started for Free
+            </button>
+          </motion.div>
+        </div>
+      </section>
+    </main>
+  );
+};
+
+const DashboardPage = () => {
+  const [searchParams] = React.useSearchParams();
+  const initialTool = searchParams.get('tool') as 'generate' | 'optimize' || 'generate';
+  const [activeTab, setActiveTab] = useState<'generate' | 'optimize'>(initialTool);
+  const navigate = useNavigate();
+
+  return (
+    <main className="pt-32 pb-20 px-6">
+      <Helmet>
+        <title>ListingPilot AI Dashboard – Generate & Optimize</title>
+      </Helmet>
+      <div className="max-w-5xl mx-auto">
+        <div className="text-center mb-16">
+          <motion.div 
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            className="inline-block px-4 py-2 rounded-full glass text-[10px] font-bold uppercase tracking-widest mb-6"
+          >
+            AI Dashboard
+          </motion.div>
+          <h1 className="text-5xl font-bold text-foreground mb-6 tracking-tighter">Listing Pilot</h1>
+          <p className="text-muted-foreground max-w-xl mx-auto mb-12 font-medium">Transform your property marketing with our advanced AI tools.</p>
+          
+          <div className="inline-flex p-1.5 bg-card border border-border rounded-2xl shadow-inner relative z-10">
+            {(['generate', 'optimize'] as const).map((tab) => (
+              <button
+                key={tab}
+                onClick={() => setActiveTab(tab)}
+                className={`px-10 py-3 rounded-xl text-xs font-bold uppercase tracking-widest transition-all relative z-10 ${activeTab === tab ? 'bg-primary text-primary-foreground shadow-lg' : 'text-muted-foreground hover:text-foreground'}`}
+              >
+                {tab} Listing
+              </button>
+            ))}
+          </div>
+        </div>
+
+        <motion.div
+          key={activeTab}
+          initial={{ opacity: 0, x: activeTab === 'generate' ? -20 : 20 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ duration: 0.4 }}
+        >
+          {activeTab === 'generate' ? <GenerateTool /> : <OptimizeTool />}
+        </motion.div>
+        
+        <div className="mt-24 text-center">
+          <Link 
+            to="/"
+            className="text-muted-foreground hover:text-foreground text-sm font-bold uppercase tracking-widest transition-colors flex items-center justify-center gap-2 mx-auto group"
+          >
+            <ArrowRight className="w-4 h-4 rotate-180 group-hover:-translate-x-1 transition-transform" />
+            Back to Home
+          </Link>
+        </div>
+      </div>
+    </main>
+  );
+};
+
 export default function App() {
-  const [activeTab, setActiveTab] = useState<'generate' | 'optimize'>('generate');
-  const [view, setView] = useState<'landing' | 'app' | 'pricing' | 'terms' | 'privacy' | 'refund' | 'contact'>('landing');
   const [theme, setTheme] = useState<'dark' | 'light'>(() => {
     if (typeof window !== 'undefined') {
       const saved = localStorage.getItem('theme');
-      return (saved as 'dark' | 'light') || 'dark';
+      return (saved as 'dark' | 'light') || 'light';
     }
-    return 'dark';
+    return 'light';
   });
 
   useEffect(() => {
@@ -1714,141 +1846,33 @@ export default function App() {
   const toggleTheme = () => {
     setTheme(prev => prev === 'dark' ? 'light' : 'dark');
   };
-  
-  const scrollIntoView = (id: string) => {
-    if (view !== 'landing') {
-      setView('landing');
-      setTimeout(() => {
-        document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' });
-      }, 100);
-    } else {
-      document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' });
-    }
-  };
-
-  const startApp = (tool: 'generate' | 'optimize') => {
-    setActiveTab(tool);
-    setView('app');
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  };
-
-  const navigateTo = (newView: string) => {
-    if (newView === 'generate' || newView === 'optimize') {
-      startApp(newView as 'generate' | 'optimize');
-    } else if (['landing', 'pricing', 'terms', 'privacy', 'refund', 'contact'].includes(newView)) {
-      setView(newView as any);
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-    } else {
-      scrollIntoView(newView);
-    }
-  };
-
-  const renderContent = () => {
-    switch (view) {
-      case 'app':
-        return (
-          <main className="pt-32 pb-20 px-6">
-            <div className="max-w-5xl mx-auto">
-              <div className="text-center mb-16">
-                <motion.div 
-                  initial={{ opacity: 0, scale: 0.9 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  className="inline-block px-4 py-2 rounded-full glass text-[10px] font-bold uppercase tracking-widest mb-6"
-                >
-                  AI Dashboard
-                </motion.div>
-                <h1 className="text-5xl font-bold text-foreground mb-6 tracking-tighter">Listing Pilot</h1>
-                <p className="text-muted-foreground max-w-xl mx-auto mb-12 font-medium">Transform your property marketing with our advanced AI tools.</p>
-                
-                <div className="inline-flex p-1.5 bg-card border border-border rounded-2xl shadow-inner relative z-10">
-                  {(['generate', 'optimize'] as const).map((tab) => (
-                    <button
-                      key={tab}
-                      onClick={() => setActiveTab(tab)}
-                      className={`px-10 py-3 rounded-xl text-xs font-bold uppercase tracking-widest transition-all relative z-10 ${activeTab === tab ? 'bg-primary text-primary-foreground shadow-lg' : 'text-muted-foreground hover:text-foreground'}`}
-                    >
-                      {tab} Listing
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              <motion.div
-                key={activeTab}
-                initial={{ opacity: 0, x: activeTab === 'generate' ? -20 : 20 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ duration: 0.4 }}
-              >
-                {activeTab === 'generate' ? <GenerateTool /> : <OptimizeTool />}
-              </motion.div>
-              
-              <div className="mt-24 text-center">
-                <button 
-                  onClick={() => setView('landing')}
-                  className="text-muted-foreground hover:text-foreground text-sm font-bold uppercase tracking-widest transition-colors flex items-center justify-center gap-2 mx-auto group"
-                >
-                  <ArrowRight className="w-4 h-4 rotate-180 group-hover:-translate-x-1 transition-transform" />
-                  Back to Landing
-                </button>
-              </div>
-            </div>
-          </main>
-        );
-      case 'pricing':
-        return <PricingPage onStart={startApp} />;
-      case 'terms':
-        return <TermsPage onBack={() => setView('landing')} />;
-      case 'privacy':
-        return <PrivacyPage onBack={() => setView('landing')} />;
-      case 'refund':
-        return <RefundPage onBack={() => setView('landing')} />;
-      case 'contact':
-        return <ContactPage onBack={() => setView('landing')} />;
-      default:
-        return (
-          <main>
-            <Hero onStart={startApp} />
-            <TrustSection />
-            <Features />
-            <Pricing />
-            <Testimonials />
-            
-            <section className="py-32 relative overflow-hidden">
-              <div className="absolute inset-0 bg-foreground/[0.02] -z-10" />
-              <div className="max-w-4xl mx-auto px-6 text-center">
-                <motion.div
-                  initial={{ opacity: 0, y: 20 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true }}
-                >
-                  <h2 className="text-5xl md:text-6xl font-bold mb-8 tracking-tighter">Ready to transform your property marketing?</h2>
-                  <p className="text-muted-foreground text-xl mb-12 font-medium">Join thousands of agents and hosts who are already using ListingPilot AI to close more deals.</p>
-                  <button 
-                    onClick={() => startApp('generate')}
-                    className="bg-primary hover:opacity-90 text-primary-foreground px-12 py-6 rounded-2xl font-bold text-lg transition-all shadow-2xl shadow-primary/20 transform hover:scale-105 active:scale-95 uppercase tracking-widest text-xs"
-                  >
-                    Get Started for Free
-                  </button>
-                </motion.div>
-              </div>
-            </section>
-          </main>
-        );
-    }
-  };
 
   return (
     <div className={`min-h-screen bg-background text-foreground transition-colors duration-500 selection:bg-primary selection:text-primary-foreground antialiased font-sans`}>
+      <ScrollToTop />
       <Navbar 
-        onNavClick={navigateTo} 
         theme={theme} 
         toggleTheme={toggleTheme} 
-        currentView={view}
       />
       
-      {renderContent()}
+      <Routes>
+        <Route path="/" element={<HomePage />} />
+        <Route path="/pricing" element={
+          <>
+            <Helmet>
+              <title>ListingPilot AI Pricing – Plans for Agents, Hosts and Agencies</title>
+            </Helmet>
+            <PricingPage />
+          </>
+        } />
+        <Route path="/terms-of-service" element={<TermsPage />} />
+        <Route path="/privacy-policy" element={<PrivacyPage />} />
+        <Route path="/refund-policy" element={<RefundPage />} />
+        <Route path="/contact" element={<ContactPage />} />
+        <Route path="/app" element={<DashboardPage />} />
+      </Routes>
 
-      <Footer onNavClick={navigateTo} />
+      <Footer />
     </div>
   );
 }
