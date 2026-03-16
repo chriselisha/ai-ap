@@ -2,18 +2,6 @@ import React, { useState, useEffect } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { Building2, Sun, Moon } from 'lucide-react';
 
-export const ThemeToggle = ({ theme, toggleTheme }: { theme: 'dark' | 'light', toggleTheme: () => void }) => {
-  return (
-    <button 
-      onClick={toggleTheme}
-      className="p-2 rounded-full hover:bg-foreground/5 transition-colors text-foreground"
-      aria-label="Toggle Theme"
-    >
-      {theme === 'dark' ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
-    </button>
-  );
-};
-
 export const Navbar = ({ theme, toggleTheme }: { theme: 'dark' | 'light', toggleTheme: () => void }) => {
   const [isScrolled, setIsScrolled] = useState(false);
   const location = useLocation();

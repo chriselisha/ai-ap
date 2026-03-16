@@ -19,10 +19,18 @@ const ScrollToTop = () => {
 };
 
 function App() {
-  const [theme, setTheme] = useState<'dark' | 'light'>('dark');
+  const [theme, setTheme] = useState<'dark' | 'light'>(() => {
+    const saved = localStorage.getItem('listingpilot-theme');
+    return (saved as 'dark' | 'light') || 'light';
+  });
 
   useEffect(() => {
-    document.documentElement.classList.toggle('dark', theme === 'dark');
+    if (theme === 'dark') {
+      document.documentElement.classList.add('dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+    }
+    localStorage.setItem('listingpilot-theme', theme);
   }, [theme]);
 
   const toggleTheme = () => {
@@ -30,7 +38,7 @@ function App() {
   };
 
   return (
-    <div className="min-h-screen bg-background text-foreground transition-colors duration-300 font-sans selection:bg-primary selection:text-primary-foreground">
+    <div className="min-h-screen bg-background text-foreground font-sans selection:bg-primary selection:text-primary-foreground">
       <ScrollToTop />
       <Navbar theme={theme} toggleTheme={toggleTheme} />
       

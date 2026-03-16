@@ -798,7 +798,7 @@ export const DashboardPage = () => {
   return (
     <main className="pt-32 pb-20 px-6">
       <Helmet>
-        <title>ListingPilot AI Dashboard – Generate & Optimize</title>
+        <title>listing pilot Dashboard – Generate & Optimize</title>
       </Helmet>
       <div className="max-w-5xl mx-auto">
         <div className="text-center mb-16">

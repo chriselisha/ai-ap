@@ -12,7 +12,7 @@ export const Footer = () => {
               <div className="w-8 h-8 bg-primary rounded flex items-center justify-center">
                 <Building2 className="text-primary-foreground w-5 h-5" />
               </div>
-              <span className="text-lg font-bold text-foreground tracking-tighter">ListingPilot AI</span>
+              <span className="text-lg font-bold text-foreground tracking-tighter">listing pilot</span>
             </div>
             <p className="text-muted-foreground text-sm max-w-sm leading-relaxed font-medium">
               The world's most advanced AI platform for real estate listing generation and optimization. Helping agents, brokers, and hosts sell and rent faster through market-aware intelligence.
@@ -41,7 +41,7 @@ export const Footer = () => {
         </div>
         
         <div className="pt-8 border-t border-border flex flex-col md:flex-row items-center justify-between gap-6">
-          <p className="text-muted-foreground text-[10px] font-bold uppercase tracking-widest">© 2026 ListingPilot AI. All rights reserved.</p>
+          <p className="text-muted-foreground text-[10px] font-bold uppercase tracking-widest">© 2026 listing pilot. All rights reserved.</p>
           <div className="flex items-center gap-8">
             <Instagram className="w-5 h-5 text-muted-foreground hover:text-foreground cursor-pointer transition-colors" />
             <Globe className="w-5 h-5 text-muted-foreground hover:text-foreground cursor-pointer transition-colors" />

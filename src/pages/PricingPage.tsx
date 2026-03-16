@@ -56,7 +56,7 @@ export const PricingPage = () => {
   return (
     <div className="min-h-screen bg-background pt-32 pb-20 px-6">
       <Helmet>
-        <title>ListingPilot AI Pricing – Plans for Agents, Hosts and Agencies</title>
+        <title>listing pilot Pricing – Plans for Agents, Hosts and Agencies</title>
       </Helmet>
       <div className="max-w-7xl mx-auto">
         <div className="text-center mb-24">
@@ -115,7 +115,7 @@ export const PricingPage = () => {
 
         <div className="glass p-16 rounded-[4rem] border border-border/50 text-center relative overflow-hidden">
           <div className="absolute top-0 left-0 w-full h-full bg-foreground/[0.02] -z-10" />
-          <h2 className="text-4xl font-bold text-foreground mb-8 tracking-tight">Who is ListingPilot AI for?</h2>
+          <h2 className="text-4xl font-bold text-foreground mb-8 tracking-tight">Who is listing pilot for?</h2>
           <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-12">
             {[
               { icon: <Building2 />, title: "Real Estate Agents", desc: "Close deals faster with high-conversion listings." },

@@ -6,13 +6,13 @@ export const PrivacyPage = () => {
   return (
     <LegalLayout title="Privacy Policy">
       <Helmet>
-        <title>ListingPilot AI Privacy Policy</title>
+        <title>listing pilot Privacy Policy</title>
       </Helmet>
-      <p className="text-sm italic mb-8">Last Updated: March 15, 2026</p>
+      <p className="text-sm italic mb-8">Last Updated: March 16, 2026</p>
       
       <section className="mb-12">
         <h2 className="text-2xl font-bold mb-4">1. Introduction</h2>
-        <p>At ListingPilot AI, we respect your privacy and are committed to protecting your personal data. This Privacy Policy explains how we collect, use, and safeguard your information when you use our platform.</p>
+        <p>At listing pilot, we respect your privacy and are committed to protecting your personal data. This Privacy Policy explains how we collect, use, and safeguard your information when you use our platform.</p>
       </section>
 
       <section className="mb-12">
@@ -41,7 +41,7 @@ export const PrivacyPage = () => {
 
       <section className="mb-12">
         <h2 className="text-2xl font-bold mb-4">4. AI Processing of Inputs</h2>
-        <p>ListingPilot AI processes your property data and images using advanced AI models. This processing is necessary to generate the listing content you request. We do not use your private property data to train public AI models without your explicit consent.</p>
+        <p>listing pilot processes your property data and images using advanced AI models. This processing is necessary to generate the listing content you request. We do not use your private property data to train public AI models without your explicit consent.</p>
       </section>
 
       <section className="mb-12">

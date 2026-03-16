@@ -14,7 +14,7 @@ export const HomePage = () => {
   return (
     <main>
       <Helmet>
-        <title>ListingPilot AI – AI Powered Real Estate Listing Generator</title>
+        <title>listing pilot – AI Powered Real Estate Listing Generator</title>
       </Helmet>
       <Hero />
       <TrustSection />
@@ -35,7 +35,7 @@ export const HomePage = () => {
               Your Real Estate Business?
             </h2>
             <p className="text-xl text-muted-foreground mb-12 max-w-2xl mx-auto leading-relaxed font-medium">
-              Join thousands of top-performing agents who are already using ListingPilot AI to dominate their local markets.
+              Join thousands of top-performing agents who are already using listing pilot to dominate their local markets.
             </p>
             <div className="flex flex-col sm:flex-row gap-6 justify-center">
               <button 

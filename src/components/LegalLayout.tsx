@@ -19,7 +19,7 @@ export const LegalLayout = ({ title, children }: { title: string, children: Reac
           <div className="w-20 h-1.5 bg-primary rounded-full" />
         </div>
 
-        <div className="prose prose-invert max-w-none text-muted-foreground leading-relaxed font-medium space-y-6">
+        <div className="prose dark:prose-invert max-w-none text-muted-foreground leading-relaxed font-medium space-y-6">
           {children}
         </div>
       </div>

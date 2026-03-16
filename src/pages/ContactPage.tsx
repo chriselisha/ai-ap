@@ -7,7 +7,7 @@ export const ContactPage = () => {
   return (
     <div className="min-h-screen bg-background pt-32 pb-20 px-6">
       <Helmet>
-        <title>Contact Support – ListingPilot AI</title>
+        <title>Contact Support – listing pilot</title>
       </Helmet>
       <div className="max-w-3xl mx-auto">
         <Link 
@@ -26,7 +26,7 @@ export const ContactPage = () => {
         <div className="grid md:grid-cols-2 gap-12">
           <div className="space-y-8">
             <p className="text-muted-foreground leading-relaxed font-medium">
-              Have questions about ListingPilot AI? Our team is here to help you transform your property marketing.
+              Have questions about listing pilot? Our team is here to help you transform your property marketing.
             </p>
             
             <div className="space-y-6">
