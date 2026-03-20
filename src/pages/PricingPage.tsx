@@ -76,7 +76,7 @@ export const PricingPage = () => {
             },
             createSubscription: function(data: any, actions: any) {
               return actions.subscription.create({
-                plan_id: "P-2E630530BE568834PNG6OXTQ"
+                plan_id: "P-9YX687401A211572ENG6QS6Y"
               });
             },
             onApprove: function(data: any, actions: any) {
@@ -96,7 +96,7 @@ export const PricingPage = () => {
             },
             createSubscription: function(data: any, actions: any) {
               return actions.subscription.create({
-                plan_id: "P-2AX85443X7974512HNG6OX2Y"
+                plan_id: "P-9MS996433T076390BNG6QTOA"
               });
             },
             onApprove: function(data: any, actions: any) {
@@ -116,7 +116,7 @@ export const PricingPage = () => {
             },
             createSubscription: function(data: any, actions: any) {
               return actions.subscription.create({
-                plan_id: "P-4UE8094846502653VNG6OYIY"
+                plan_id: "P-2SB83222N29158624NG6QT3I"
               });
             },
             onApprove: function(data: any, actions: any) {
