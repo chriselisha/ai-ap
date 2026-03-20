@@ -5,7 +5,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { 
   Globe, Building2, Bed, Bath, Maximize2, Zap, Upload, X, 
   FileText, Sparkles, Layout, Instagram, Hash, Copy, 
-  DollarSign, Search, ChevronDown, BarChart3, ArrowRight, Check
+  DollarSign, Search, ChevronDown, BarChart3, ArrowRight, Check, AlertCircle
 } from 'lucide-react';
 import { 
   GenerateListingInput, GenerateListingOutput, 
@@ -13,6 +13,7 @@ import {
 } from '../types';
 import { COUNTRIES, PROPERTY_TYPES } from '../constants';
 import { generateListing, optimizeListing } from '../services/gemini';
+import { useAuth } from '../contexts/AuthContext';
 
 const SearchableSelect = ({ 
   options, 
@@ -130,6 +131,7 @@ const ResultCard = ({ title, content, onCopy, isLong, icon }: { title: string, c
 };
 
 const GenerateTool = () => {
+  const { user, profile, openLoginModal, decrementCredits } = useAuth();
   const [formData, setFormData] = useState<GenerateListingInput>({
     country: 'United States',
     state: '',
@@ -162,9 +164,26 @@ const GenerateTool = () => {
   };
 
   const handleGenerate = async () => {
+    if (!user) {
+      openLoginModal();
+      return;
+    }
+
+    if (profile && profile.plan_type !== 'Pro' && profile.credits_remaining <= 0) {
+      setError("You have used all your credits. Upgrade your plan to continue generating listings.");
+      return;
+    }
+
     setIsLoading(true);
     setError(null);
     try {
+      const success = await decrementCredits();
+      if (!success) {
+        setError("Failed to use credit. Please try again.");
+        setIsLoading(false);
+        return;
+      }
+
       const output = await generateListing(formData);
       setResult(output);
     } catch (err) {
@@ -369,9 +388,21 @@ const GenerateTool = () => {
             />
           </div>
 
+          {profile && profile.plan_type !== 'Pro' && profile.credits_remaining <= 0 && (
+            <div className="p-4 bg-orange-500/10 border border-orange-500/20 rounded-2xl text-orange-500 text-sm font-medium flex items-center justify-between gap-3">
+              <div className="flex items-center gap-3">
+                <AlertCircle className="w-5 h-5 shrink-0" />
+                <span>You have used all your credits. Upgrade to continue generating listings.</span>
+              </div>
+              <Link to="/pricing" className="px-4 py-2 bg-orange-500 text-white rounded-xl text-xs font-bold uppercase tracking-widest hover:bg-orange-600 transition-colors shrink-0">
+                Upgrade
+              </Link>
+            </div>
+          )}
+
           <button 
             onClick={handleGenerate}
-            disabled={isLoading}
+            disabled={isLoading || (profile && profile.plan_type !== 'Pro' && profile.credits_remaining <= 0)}
             className="w-full group relative overflow-hidden bg-foreground text-background py-5 rounded-2xl font-bold flex items-center justify-center gap-3 transition-all hover:scale-[1.01] active:scale-[0.99] shadow-2xl shadow-foreground/10 disabled:opacity-50 disabled:cursor-not-allowed"
           >
             <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000" />
@@ -530,6 +561,7 @@ const GenerateTool = () => {
 };
 
 const OptimizeTool = () => {
+  const { user, profile, openLoginModal, decrementCredits } = useAuth();
   const [formData, setFormData] = useState<OptimizeListingInput>({
     url: '',
     platform: 'Other',
@@ -554,6 +586,17 @@ const OptimizeTool = () => {
 
   const handleOptimize = async () => {
     if (!formData.url) return;
+    
+    if (!user) {
+      openLoginModal();
+      return;
+    }
+
+    if (profile && profile.plan_type !== 'Pro' && profile.credits_remaining <= 0) {
+      setError("You have used all your credits. Upgrade your plan to continue generating listings.");
+      return;
+    }
+
     setIsLoading(true);
     setError(null);
     setResult(null);
@@ -566,6 +609,14 @@ const OptimizeTool = () => {
     }, 30000);
 
     try {
+      const success = await decrementCredits();
+      if (!success) {
+        setError("Failed to use credit. Please try again.");
+        clearTimeout(timeoutId);
+        setIsLoading(false);
+        return;
+      }
+
       const output = await optimizeListing(formData);
       setResult(output);
     } catch (err) {
@@ -632,9 +683,21 @@ const OptimizeTool = () => {
             </div>
           </div>
 
+          {profile && profile.plan_type !== 'Pro' && profile.credits_remaining <= 0 && (
+            <div className="p-4 bg-orange-500/10 border border-orange-500/20 rounded-2xl text-orange-500 text-sm font-medium flex items-center justify-between gap-3">
+              <div className="flex items-center gap-3">
+                <AlertCircle className="w-5 h-5 shrink-0" />
+                <span>You have used all your credits. Upgrade to continue optimizing listings.</span>
+              </div>
+              <Link to="/pricing" className="px-4 py-2 bg-orange-500 text-white rounded-xl text-xs font-bold uppercase tracking-widest hover:bg-orange-600 transition-colors shrink-0">
+                Upgrade
+              </Link>
+            </div>
+          )}
+
           <button 
             onClick={handleOptimize}
-            disabled={isLoading || !formData.url}
+            disabled={isLoading || !formData.url || (profile && profile.plan_type !== 'Pro' && profile.credits_remaining <= 0)}
             className="w-full group relative overflow-hidden bg-foreground text-background py-5 rounded-2xl font-bold flex items-center justify-center gap-3 transition-all hover:scale-[1.01] active:scale-[0.99] shadow-2xl shadow-foreground/10 disabled:opacity-50 disabled:cursor-not-allowed"
           >
             <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000" />

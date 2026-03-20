@@ -1,0 +1,107 @@
+{
+  "entities": {
+    "User": {
+      "title": "User",
+      "description": "User profile and credit information.",
+      "type": "object",
+      "properties": {
+        "user_id": {
+          "type": "string",
+          "description": "The user's unique ID."
+        },
+        "email": {
+          "type": "string",
+          "format": "email",
+          "description": "The user's email address."
+        },
+        "login_provider": {
+          "type": "string",
+          "enum": ["google", "email"],
+          "description": "The authentication provider used."
+        },
+        "plan_type": {
+          "type": "string",
+          "enum": ["Free", "Starter", "Pro"],
+          "description": "The user's current subscription plan."
+        },
+        "credits_remaining": {
+          "type": "number",
+          "description": "The number of AI credits remaining."
+        },
+        "device_fingerprint": {
+          "type": "string",
+          "description": "The user's device fingerprint hash."
+        },
+        "ip_address": {
+          "type": "string",
+          "description": "The user's IP address at signup."
+        },
+        "account_created_at": {
+          "type": "string",
+          "format": "date-time",
+          "description": "When the account was created."
+        },
+        "role": {
+          "type": "string",
+          "enum": ["user", "admin"],
+          "description": "The user's role."
+        }
+      },
+      "required": ["user_id", "email", "login_provider", "plan_type", "credits_remaining", "account_created_at", "role"]
+    },
+    "Fingerprint": {
+      "title": "Fingerprint",
+      "description": "Tracks device fingerprints to prevent abuse.",
+      "type": "object",
+      "properties": {
+        "used_by": {
+          "type": "string",
+          "description": "The user ID that claimed this fingerprint."
+        },
+        "created_at": {
+          "type": "string",
+          "format": "date-time",
+          "description": "When this fingerprint was recorded."
+        }
+      },
+      "required": ["used_by", "created_at"]
+    },
+    "IPAddress": {
+      "title": "IPAddress",
+      "description": "Tracks IP addresses to prevent abuse.",
+      "type": "object",
+      "properties": {
+        "used_by": {
+          "type": "string",
+          "description": "The user ID that claimed this IP."
+        },
+        "created_at": {
+          "type": "string",
+          "format": "date-time",
+          "description": "When this IP was recorded."
+        }
+      },
+      "required": ["used_by", "created_at"]
+    }
+  },
+  "firestore": {
+    "/users/{userId}": {
+      "schema": {
+        "$ref": "#/entities/User"
+      },
+      "description": "Stores user profiles and credit balances."
+    },
+    "/fingerprints/{fingerprintId}": {
+      "schema": {
+        "$ref": "#/entities/Fingerprint"
+      },
+      "description": "Stores used device fingerprints."
+    },
+    "/ips/{ipId}": {
+      "schema": {
+        "$ref": "#/entities/IPAddress"
+      },
+      "description": "Stores used IP addresses."
+    }
+  }
+}

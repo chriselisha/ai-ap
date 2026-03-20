@@ -1,29 +1,38 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
 import { motion } from 'motion/react';
 import { Check, Building2, Globe, Layout, Zap } from 'lucide-react';
 
+declare global {
+  interface Window {
+    paypal?: any;
+  }
+}
+
 export const PricingPage = () => {
   const navigate = useNavigate();
   const plans = [
     {
-      name: "Free",
-      price: "$0",
+      id: "starter",
+      name: "Starter",
+      price: "$9",
+      period: "/month",
       desc: "Perfect for trying out our AI capabilities.",
       features: [
-        "3 listing generations per month",
-        "Limited optimize listing uses",
+        "10 listing generations per month",
+        "Basic optimize listing uses",
         "Basic pricing estimates",
         "Standard support",
         "Standard output quality"
       ],
-      cta: "Get Started",
       popular: false
     },
     {
+      id: "pro",
       name: "Pro",
-      price: "$49",
+      price: "$19",
+      period: "/month",
       desc: "Ideal for solo agents and active hosts.",
       features: [
         "Unlimited listing generations",
@@ -33,12 +42,13 @@ export const PricingPage = () => {
         "Advanced output quality",
         "Market-aware intelligence"
       ],
-      cta: "Upgrade to Pro",
       popular: true
     },
     {
-      name: "Agency",
-      price: "$199",
+      id: "annual",
+      name: "Annual",
+      price: "$200",
+      period: "/year",
       desc: "Built for large teams and agencies.",
       features: [
         "Multi-user/team usage",
@@ -48,10 +58,79 @@ export const PricingPage = () => {
         "Custom output templates",
         "API Access (Coming Soon)"
       ],
-      cta: "Contact Sales",
       popular: false
     }
   ];
+
+  useEffect(() => {
+    const renderPayPalButtons = () => {
+      if (window.paypal) {
+        // Starter
+        if (document.getElementById('paypal-starter') && !document.getElementById('paypal-starter')?.hasChildNodes()) {
+          window.paypal.Buttons({
+            style: {
+              shape: "rect",
+              color: "black",
+              layout: "vertical",
+              label: "subscribe"
+            },
+            createSubscription: function(data: any, actions: any) {
+              return actions.subscription.create({
+                plan_id: "P-2E630530BE568834PNG6OXTQ"
+              });
+            },
+            onApprove: function(data: any, actions: any) {
+              window.location.href = "/payment-success";
+            }
+          }).render("#paypal-starter");
+        }
+
+        // Pro
+        if (document.getElementById('paypal-pro') && !document.getElementById('paypal-pro')?.hasChildNodes()) {
+          window.paypal.Buttons({
+            style: {
+              shape: "rect",
+              color: "black",
+              layout: "vertical",
+              label: "subscribe"
+            },
+            createSubscription: function(data: any, actions: any) {
+              return actions.subscription.create({
+                plan_id: "P-2AX85443X7974512HNG6OX2Y"
+              });
+            },
+            onApprove: function(data: any, actions: any) {
+              window.location.href = "/payment-success";
+            }
+          }).render("#paypal-pro");
+        }
+
+        // Annual
+        if (document.getElementById('paypal-annual') && !document.getElementById('paypal-annual')?.hasChildNodes()) {
+          window.paypal.Buttons({
+            style: {
+              shape: "rect",
+              color: "black",
+              layout: "vertical",
+              label: "subscribe"
+            },
+            createSubscription: function(data: any, actions: any) {
+              return actions.subscription.create({
+                plan_id: "P-4UE8094846502653VNG6OYIY"
+              });
+            },
+            onApprove: function(data: any, actions: any) {
+              window.location.href = "/payment-success";
+            }
+          }).render("#paypal-annual");
+        }
+      } else {
+        setTimeout(renderPayPalButtons, 500);
+      }
+    };
+
+    renderPayPalButtons();
+  }, []);
 
   return (
     <div className="min-h-screen bg-background pt-32 pb-20 px-6">
@@ -71,7 +150,7 @@ export const PricingPage = () => {
           <p className="text-muted-foreground text-xl max-w-2xl mx-auto font-medium">Choose the plan that fits your property marketing needs. Scale as you grow.</p>
         </div>
 
-        <div className="grid lg:grid-cols-3 gap-8 mb-32">
+        <div className="grid lg:grid-cols-3 gap-8 mb-8">
           {plans.map((p, i) => (
             <motion.div 
               key={i}
@@ -89,7 +168,7 @@ export const PricingPage = () => {
               <p className="text-muted-foreground text-sm mb-10 font-medium leading-relaxed">{p.desc}</p>
               <div className="flex items-baseline gap-2 mb-12">
                 <span className="text-6xl font-bold text-foreground tracking-tighter">{p.price}</span>
-                <span className="text-muted-foreground font-medium">/month</span>
+                <span className="text-muted-foreground font-medium">{p.period}</span>
               </div>
               
               <div className="space-y-6 mb-12 flex-grow">
@@ -103,14 +182,13 @@ export const PricingPage = () => {
                 ))}
               </div>
 
-              <button 
-                onClick={() => p.name === "Agency" ? navigate('/contact') : navigate('/app?tool=generate')}
-                className={`w-full py-6 rounded-2xl font-bold uppercase tracking-widest text-xs transition-all hover:scale-[1.02] active:scale-95 ${p.popular ? 'bg-primary text-primary-foreground shadow-xl shadow-primary/20' : 'glass text-foreground hover:bg-foreground/5'}`}
-              >
-                {p.cta}
-              </button>
+              <div id={`paypal-${p.id}`} className="w-full min-h-[45px]"></div>
             </motion.div>
           ))}
+        </div>
+
+        <div className="text-center mb-32">
+          <p className="text-sm text-muted-foreground font-medium">Secure payments powered by PayPal.</p>
         </div>
 
         <div className="glass p-16 rounded-[4rem] border border-border/50 text-center relative overflow-hidden">

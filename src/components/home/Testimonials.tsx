@@ -7,7 +7,7 @@ export const Testimonials = () => {
     {
       name: "Sarah Jenkins",
       role: "Luxury Agent",
-      content: "ListingPilot AI has completely transformed my workflow. I save hours every week and my clients are blown away by the quality of the descriptions.",
+      content: "listing pilot AI has completely transformed my workflow. I save hours every week and my clients are blown away by the quality of the descriptions.",
       rating: 5
     },
     {

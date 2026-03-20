@@ -1,11 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
-import { Building2, Sun, Moon } from 'lucide-react';
+import { Building2, Sun, Moon, LogOut, User as UserIcon, Zap } from 'lucide-react';
+import { useAuth } from '../contexts/AuthContext';
 
 export const Navbar = ({ theme, toggleTheme }: { theme: 'dark' | 'light', toggleTheme: () => void }) => {
   const [isScrolled, setIsScrolled] = useState(false);
   const location = useLocation();
   const navigate = useNavigate();
+  const { user, profile, openLoginModal, logout } = useAuth();
 
   useEffect(() => {
     const handleScroll = () => setIsScrolled(window.scrollY > 20);
@@ -39,7 +41,7 @@ export const Navbar = ({ theme, toggleTheme }: { theme: 'dark' | 'light', toggle
             <div className="w-10 h-10 bg-primary rounded-xl flex items-center justify-center shadow-lg shadow-primary/20 group-hover:scale-110 transition-transform">
               <Building2 className="text-primary-foreground w-6 h-6" />
             </div>
-            <span className="text-xl font-bold text-foreground tracking-tighter">ListingPilot</span>
+            <span className="text-xl font-bold text-foreground tracking-tighter">listing pilot</span>
           </Link>
           
           <div className="hidden md:flex items-center gap-10">
@@ -66,6 +68,40 @@ export const Navbar = ({ theme, toggleTheme }: { theme: 'dark' | 'light', toggle
             >
               {theme === 'dark' ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
             </button>
+            
+            {user ? (
+              <div className="flex items-center gap-4">
+                {profile && (
+                  <div className="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-lg bg-primary/10 text-primary text-xs font-bold">
+                    <Zap className="w-3.5 h-3.5" />
+                    {profile.plan_type === 'Pro' ? 'Unlimited' : `${profile.credits_remaining} Credits`}
+                  </div>
+                )}
+                <div className="flex items-center gap-2">
+                  <div className="w-8 h-8 rounded-full bg-muted flex items-center justify-center overflow-hidden border border-border">
+                    {user.photoURL ? (
+                      <img src={user.photoURL} alt="User" className="w-full h-full object-cover" referrerPolicy="no-referrer" />
+                    ) : (
+                      <UserIcon className="w-4 h-4 text-muted-foreground" />
+                    )}
+                  </div>
+                  <button 
+                    onClick={logout}
+                    className="p-2 rounded-xl hover:bg-muted transition-colors text-muted-foreground hover:text-foreground"
+                    title="Sign Out"
+                  >
+                    <LogOut className="w-4 h-4" />
+                  </button>
+                </div>
+              </div>
+            ) : (
+              <button
+                onClick={openLoginModal}
+                className="px-6 py-2.5 bg-primary text-primary-foreground rounded-xl text-xs font-bold uppercase tracking-widest hover:opacity-90 transition-all shadow-lg shadow-primary/20"
+              >
+                Sign In
+              </button>
+            )}
           </div>
         </div>
       </div>

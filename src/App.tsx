@@ -9,6 +9,9 @@ import { PrivacyPage } from './pages/PrivacyPage';
 import { RefundPage } from './pages/RefundPage';
 import { ContactPage } from './pages/ContactPage';
 import { DashboardPage } from './pages/DashboardPage';
+import { PaymentSuccessPage } from './pages/PaymentSuccessPage';
+import { AuthProvider } from './contexts/AuthContext';
+import { LoginModal } from './components/LoginModal';
 
 const ScrollToTop = () => {
   const { pathname } = useLocation();
@@ -38,22 +41,26 @@ function App() {
   };
 
   return (
-    <div className="min-h-screen bg-background text-foreground font-sans selection:bg-primary selection:text-primary-foreground">
-      <ScrollToTop />
-      <Navbar theme={theme} toggleTheme={toggleTheme} />
-      
-      <Routes>
-        <Route path="/" element={<HomePage />} />
-        <Route path="/pricing" element={<PricingPage />} />
-        <Route path="/terms-of-service" element={<TermsPage />} />
-        <Route path="/privacy-policy" element={<PrivacyPage />} />
-        <Route path="/refund-policy" element={<RefundPage />} />
-        <Route path="/contact" element={<ContactPage />} />
-        <Route path="/app" element={<DashboardPage />} />
-      </Routes>
+    <AuthProvider>
+      <div className="min-h-screen bg-background text-foreground font-sans selection:bg-primary selection:text-primary-foreground">
+        <ScrollToTop />
+        <Navbar theme={theme} toggleTheme={toggleTheme} />
+        
+        <Routes>
+          <Route path="/" element={<HomePage />} />
+          <Route path="/pricing" element={<PricingPage />} />
+          <Route path="/terms-of-service" element={<TermsPage />} />
+          <Route path="/privacy-policy" element={<PrivacyPage />} />
+          <Route path="/refund-policy" element={<RefundPage />} />
+          <Route path="/contact" element={<ContactPage />} />
+          <Route path="/app" element={<DashboardPage />} />
+          <Route path="/payment-success" element={<PaymentSuccessPage />} />
+        </Routes>
 
-      <Footer />
-    </div>
+        <Footer />
+        <LoginModal />
+      </div>
+    </AuthProvider>
   );
 }
 
