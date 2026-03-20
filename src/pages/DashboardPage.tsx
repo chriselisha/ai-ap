@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useSearchParams, Link, useNavigate } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion, AnimatePresence } from 'motion/react';
 import { 
   Globe, Building2, Bed, Bath, Maximize2, Zap, Upload, X, 
   FileText, Sparkles, Layout, Instagram, Hash, Copy, 
@@ -234,7 +234,7 @@ const GenerateTool = () => {
                     />
                   </div>
                   <div className="space-y-2">
-                    <label className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">Area / City</label>
+                    <label className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">Area / Neighborhood</label>
                     <input 
                       type="text"
                       placeholder="e.g. Miami"

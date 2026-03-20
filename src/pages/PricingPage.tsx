@@ -20,7 +20,7 @@ export const PricingPage = () => {
       period: "/month",
       desc: "Perfect for trying out our AI capabilities.",
       features: [
-        "10 listing generations per month",
+        "30 listing generations per month",
         "Basic optimize listing uses",
         "Basic pricing estimates",
         "Standard support",
