@@ -4,12 +4,6 @@ import { Helmet } from 'react-helmet-async';
 import { motion } from 'motion/react';
 import { Check, Building2, Globe, Layout, Zap } from 'lucide-react';
 
-declare global {
-  interface Window {
-    paypal?: any;
-  }
-}
-
 export const PricingPage = () => {
   const navigate = useNavigate();
   const plans = [
@@ -62,76 +56,6 @@ export const PricingPage = () => {
     }
   ];
 
-  useEffect(() => {
-    const renderPayPalButtons = () => {
-      if (window.paypal) {
-        // Starter
-        if (document.getElementById('paypal-starter') && !document.getElementById('paypal-starter')?.hasChildNodes()) {
-          window.paypal.Buttons({
-            style: {
-              shape: "rect",
-              color: "black",
-              layout: "vertical",
-              label: "subscribe"
-            },
-            createSubscription: function(data: any, actions: any) {
-              return actions.subscription.create({
-                plan_id: "P-9YX687401A211572ENG6QS6Y"
-              });
-            },
-            onApprove: function(data: any, actions: any) {
-              window.location.href = "/payment-success";
-            }
-          }).render("#paypal-starter");
-        }
-
-        // Pro
-        if (document.getElementById('paypal-pro') && !document.getElementById('paypal-pro')?.hasChildNodes()) {
-          window.paypal.Buttons({
-            style: {
-              shape: "rect",
-              color: "black",
-              layout: "vertical",
-              label: "subscribe"
-            },
-            createSubscription: function(data: any, actions: any) {
-              return actions.subscription.create({
-                plan_id: "P-9MS996433T076390BNG6QTOA"
-              });
-            },
-            onApprove: function(data: any, actions: any) {
-              window.location.href = "/payment-success";
-            }
-          }).render("#paypal-pro");
-        }
-
-        // Annual
-        if (document.getElementById('paypal-annual') && !document.getElementById('paypal-annual')?.hasChildNodes()) {
-          window.paypal.Buttons({
-            style: {
-              shape: "rect",
-              color: "black",
-              layout: "vertical",
-              label: "subscribe"
-            },
-            createSubscription: function(data: any, actions: any) {
-              return actions.subscription.create({
-                plan_id: "P-2SB83222N29158624NG6QT3I"
-              });
-            },
-            onApprove: function(data: any, actions: any) {
-              window.location.href = "/payment-success";
-            }
-          }).render("#paypal-annual");
-        }
-      } else {
-        setTimeout(renderPayPalButtons, 500);
-      }
-    };
-
-    renderPayPalButtons();
-  }, []);
-
   return (
     <div className="min-h-screen bg-background pt-32 pb-20 px-6">
       <Helmet>
@@ -182,13 +106,16 @@ export const PricingPage = () => {
                 ))}
               </div>
 
-              <div id={`paypal-${p.id}`} className="w-full min-h-[45px]"></div>
+              <div className="w-full mt-auto">
+                <button 
+                  disabled
+                  className="w-full py-4 rounded-2xl font-bold uppercase tracking-widest text-xs flex items-center justify-center gap-2 transition-all bg-muted text-muted-foreground cursor-not-allowed border border-border"
+                >
+                  Payment coming soon
+                </button>
+              </div>
             </motion.div>
           ))}
-        </div>
-
-        <div className="text-center mb-32">
-          <p className="text-sm text-muted-foreground font-medium">Secure payments powered by PayPal.</p>
         </div>
 
         <div className="glass p-16 rounded-[4rem] border border-border/50 text-center relative overflow-hidden">

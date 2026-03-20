@@ -12,7 +12,7 @@ export const RefundPage = () => {
       
       <section className="mb-12">
         <h2 className="text-2xl font-bold mb-4">1. Overview</h2>
-        <p>listing pilot sells its services through PayPal, which acts as the Merchant of Record for all transactions. PayPal manages payments, taxes, and refund processing for our platform. We aim to provide the highest quality AI listing services and ensure a transparent refund process for all our customers.</p>
+        <p>listing pilot sells its services through our payment processor, which acts as the Merchant of Record for all transactions. Our payment provider manages payments, taxes, and refund processing for our platform. We aim to provide the highest quality AI listing services and ensure a transparent refund process for all our customers.</p>
       </section>
 
       <section className="mb-12">
@@ -22,7 +22,7 @@ export const RefundPage = () => {
 
       <section className="mb-12">
         <h2 className="text-2xl font-bold mb-4">3. How to Request a Refund</h2>
-        <p>Refund requests are handled by PayPal, our Merchant of Record. You may submit a refund request through PayPal's support channels or by contacting us directly at support@listingpilot.ai. When contacting us, please include your account details and the transaction date to help us expedite the process with PayPal.</p>
+        <p>Refund requests are handled by our payment processor, our Merchant of Record. You may submit a refund request through our payment provider's support channels or by contacting us directly at support@listingpilot.ai. When contacting us, please include your account details and the transaction date to help us expedite the process with our payment processor.</p>
       </section>
 
       <section className="mb-12">
@@ -32,7 +32,7 @@ export const RefundPage = () => {
 
       <section className="mb-12">
         <h2 className="text-2xl font-bold mb-4">5. Processing Time</h2>
-        <p>Once a refund is approved by PayPal, it typically takes 3-5 business days for the funds to appear back in your original payment method. Please note that processing times may vary depending on your financial institution.</p>
+        <p>Once a refund is approved by our payment processor, it typically takes 3-5 business days for the funds to appear back in your original payment method. Please note that processing times may vary depending on your financial institution.</p>
       </section>
     </LegalLayout>
   );

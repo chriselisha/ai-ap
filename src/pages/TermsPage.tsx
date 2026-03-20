@@ -36,8 +36,8 @@ export const TermsPage = () => {
 
       <section className="mb-12">
         <h2 className="text-2xl font-bold mb-4">5. Pricing, Billing, and Merchant of Record</h2>
-        <p className="mb-4">Access to certain features of the Service requires a paid subscription. Our order process is conducted by our online reseller PayPal. PayPal is the Merchant of Record for all our orders. PayPal provides all customer service inquiries and handles returns.</p>
-        <p>All payments are processed securely by PayPal. By subscribing to our Service, you agree to PayPal's terms and conditions in addition to these Terms. We reserve the right to change our pricing at any time with reasonable notice to active subscribers.</p>
+        <p className="mb-4">Access to certain features of the Service requires a paid subscription. Our order process is conducted by our online reseller and payment processor. Our payment processor is the Merchant of Record for all our orders. Our payment provider provides all customer service inquiries and handles returns.</p>
+        <p>All payments are processed securely by our payment processor. By subscribing to our Service, you agree to our payment provider's terms and conditions in addition to these Terms. We reserve the right to change our pricing at any time with reasonable notice to active subscribers.</p>
       </section>
 
       <section className="mb-12">

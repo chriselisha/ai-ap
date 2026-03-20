@@ -23,7 +23,7 @@ export const PrivacyPage = () => {
           <li>Property details (address, specs, features)</li>
           <li>Uploaded images and media</li>
           <li>Pasted URLs from third-party listing platforms</li>
-          <li>Payment information (processed securely by our Merchant of Record, Paddle)</li>
+          <li>Payment information (processed securely by our Merchant of Record)</li>
         </ul>
       </section>
 
@@ -46,7 +46,7 @@ export const PrivacyPage = () => {
 
       <section className="mb-12">
         <h2 className="text-2xl font-bold mb-4">5. Sharing of Information</h2>
-        <p>We do not sell your personal data to third parties. We may share information with trusted service providers who assist us in operating our platform, such as hosting providers, AI infrastructure partners, and our Merchant of Record, Paddle. Payment information is processed securely by Paddle, and we do not store full credit card details on our servers.</p>
+        <p>We do not sell your personal data to third parties. We may share information with trusted service providers who assist us in operating our platform, such as hosting providers, AI infrastructure partners, and our Merchant of Record. Payment information is processed securely by our payment provider, and we do not store full credit card details on our servers.</p>
       </section>
 
       <section className="mb-12">
