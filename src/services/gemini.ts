@@ -64,7 +64,7 @@ export async function generateListing(input: GenerateListingInput): Promise<Gene
 }
 
 export async function enhancePropertyPhoto(imageBase64: string, mimeType: string): Promise<string> {
-  const model = "gemini-2.0-flash-preview-image-generation";
+  const model = "gemini-2.0-flash-exp";
   
   const prompt = `You are a professional real estate photographer and photo editor. Enhance this property photo to make it look like it was taken by a professional photographer for a luxury real estate listing.
 
@@ -73,14 +73,12 @@ Apply these enhancements:
 - Correct the white balance and color temperature
 - Make colors more vibrant but natural
 - Sharpen the image and improve clarity
-- If the room looks empty, suggest how it could be virtually staged
 - Make the sky blue and bright if it's an exterior shot
 - Enhance the lawn/garden to look lush and well-maintained if visible
-- Remove any visual clutter or distracting elements
 - Apply HDR-like tone mapping for balanced exposure
 - Make the photo look magazine-ready
 
-Generate an enhanced version of this property photo. Output ONLY the enhanced image, nothing else.`;
+Generate an enhanced version of this property photo. Output ONLY the enhanced image.`;
 
   const response = await ai.models.generateContent({
     model,
@@ -103,7 +101,6 @@ Generate an enhanced version of this property photo. Output ONLY the enhanced im
     },
   });
 
-  // Extract the generated image from the response
   const parts = response.candidates?.[0]?.content?.parts || [];
   for (const part of parts) {
     if (part.inlineData) {
@@ -111,7 +108,7 @@ Generate an enhanced version of this property photo. Output ONLY the enhanced im
     }
   }
   
-  throw new Error("No enhanced image was generated. Please try again.");
+  throw new Error("No enhanced image was generated. Please try again with a different photo.");
 }
 
 export async function optimizeListing(input: OptimizeListingInput): Promise<OptimizeListingOutput> {
