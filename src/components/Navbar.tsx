@@ -7,7 +7,7 @@ export const Navbar = ({ theme, toggleTheme }: { theme: 'dark' | 'light', toggle
   const [isScrolled, setIsScrolled] = useState(false);
   const location = useLocation();
   const navigate = useNavigate();
-  const { user, profile, openLoginModal, logout } = useAuth();
+  const { user, userData, openLoginModal, logout } = useAuth();
 
   useEffect(() => {
     const handleScroll = () => setIsScrolled(window.scrollY > 20);
@@ -71,10 +71,14 @@ export const Navbar = ({ theme, toggleTheme }: { theme: 'dark' | 'light', toggle
             
             {user ? (
               <div className="flex items-center gap-4">
-                {profile && (
+                {userData && (
                   <div className="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-lg bg-primary/10 text-primary text-xs font-bold">
                     <Zap className="w-3.5 h-3.5" />
-                    {profile.plan_type === 'Pro' ? 'Unlimited' : `${profile.credits_remaining} Credits`}
+                    {userData.plan === 'pro' || userData.plan === 'annual' 
+                      ? '∞ Unlimited' 
+                      : userData.plan === 'starter' 
+                        ? `${userData.credits} / 30 Credits`
+                        : `${userData.credits} Credits`}
                   </div>
                 )}
                 <div className="flex items-center gap-2">
