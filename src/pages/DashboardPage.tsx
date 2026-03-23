@@ -12,7 +12,7 @@ import {
   OptimizeListingInput, OptimizeListingOutput 
 } from '../types';
 import { COUNTRIES, PROPERTY_TYPES } from '../constants';
-import { generateListing, optimizeListing } from '../services/gemini';
+import { generateListing, optimizeListing, enhancePropertyPhoto } from '../services/gemini';
 import { useAuth } from '../contexts/AuthContext';
 
 const SearchableSelect = ({ 
@@ -339,20 +339,56 @@ const GenerateTool = () => {
               </h3>
               <div className="grid grid-cols-3 gap-3">
                 {formData.images.map((img, i) => (
-                  <motion.div 
-                    initial={{ opacity: 0, scale: 0.9 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    key={i} 
-                    className="relative aspect-square rounded-xl overflow-hidden border border-border group"
-                  >
-                    <img src={img} alt="Preview" className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" />
-                    <button 
-                      onClick={() => removeImage(i)}
-                      className="absolute top-2 right-2 p-1.5 bg-background/80 backdrop-blur-md rounded-full text-foreground opacity-0 group-hover:opacity-100 transition-all hover:bg-red-500 hover:text-white"
+                  <div key={i} className="space-y-2">
+                    <motion.div 
+                      initial={{ opacity: 0, scale: 0.9 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      className="relative aspect-square rounded-xl overflow-hidden border border-border group"
                     >
-                      <X className="w-3 h-3" />
+                      <img src={img} alt="Preview" className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" />
+                      <button 
+                        onClick={() => removeImage(i)}
+                        className="absolute top-2 right-2 p-1.5 bg-background/80 backdrop-blur-md rounded-full text-foreground opacity-0 group-hover:opacity-100 transition-all hover:bg-red-500 hover:text-white"
+                      >
+                        <X className="w-3 h-3" />
+                      </button>
+                    </motion.div>
+                    <button
+                      onClick={async () => {
+                        if (!user) {
+                          openLoginModal();
+                          return;
+                        }
+                        const hasCredits = await decrementCredits();
+                        if (!hasCredits) {
+                          setError("You've used all your credits! Please upgrade your plan.");
+                          return;
+                        }
+                        try {
+                          setIsLoading(true);
+                          // Fetch the blob from the object URL
+                          const response = await fetch(img);
+                          const blob = await response.blob();
+                          const reader = new FileReader();
+                          reader.onloadend = async () => {
+                            const base64data = (reader.result as string).split(',')[1];
+                            const enhanced = await enhancePropertyPhoto(base64data, blob.type);
+                            const newImages = [...formData.images];
+                            newImages[i] = enhanced;
+                            setFormData(prev => ({ ...prev, images: newImages }));
+                            setIsLoading(false);
+                          };
+                          reader.readAsDataURL(blob);
+                        } catch (err) {
+                          setError("Failed to enhance photo. Please try again.");
+                          setIsLoading(false);
+                        }
+                      }}
+                      className="w-full py-1.5 px-2 bg-primary/10 hover:bg-primary/20 text-primary rounded-lg text-[10px] font-bold uppercase tracking-widest transition-colors flex items-center justify-center gap-1"
+                    >
+                      <Sparkles className="w-3 h-3" /> Enhance with AI
                     </button>
-                  </motion.div>
+                  </div>
                 ))}
                 <button 
                   onClick={() => fileInputRef.current?.click()}
@@ -852,10 +888,248 @@ const OptimizeTool = () => {
   );
 };
 
+const EnhanceTool = () => {
+  const { user, userData, openLoginModal, decrementCredits } = useAuth();
+  const [uploadedImage, setUploadedImage] = useState<string | null>(null);
+  const [enhancedImage, setEnhancedImage] = useState<string | null>(null);
+  const [isEnhancing, setIsEnhancing] = useState(false);
+  const [uploadedMimeType, setUploadedMimeType] = useState<string>('image/jpeg');
+  const [error, setError] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    
+    setUploadedMimeType(file.type);
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      const result = event.target?.result as string;
+      setUploadedImage(result);
+      setEnhancedImage(null);
+      setError(null);
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+  };
+
+  const handleDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    const file = e.dataTransfer.files[0];
+    if (file && file.type.startsWith('image/')) {
+      setUploadedMimeType(file.type);
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        setUploadedImage(event.target?.result as string);
+        setEnhancedImage(null);
+        setError(null);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const handleEnhance = async () => {
+    if (!uploadedImage) return;
+    
+    if (!user) {
+      openLoginModal();
+      return;
+    }
+
+    if (userData && userData.plan_type !== 'Pro' && userData.plan_type !== 'Annual' && userData.credits_remaining <= 0) {
+      setError("You've used all your free credits! Upgrade your plan to continue enhancing photos.");
+      return;
+    }
+    
+    setIsEnhancing(true);
+    setError(null);
+    try {
+      const hasCredits = await decrementCredits();
+      if (!hasCredits) {
+        setError("Failed to use credit. Please try again.");
+        setIsEnhancing(false);
+        return;
+      }
+
+      const base64Data = uploadedImage.split(',')[1];
+      const result = await enhancePropertyPhoto(base64Data, uploadedMimeType);
+      setEnhancedImage(result);
+    } catch (err) {
+      console.error('Enhancement error:', err);
+      setError('Failed to enhance photo. Please try again.');
+    } finally {
+      setIsEnhancing(false);
+    }
+  };
+
+  const handleDownload = () => {
+    if (!enhancedImage) return;
+    const link = document.createElement('a');
+    link.href = enhancedImage;
+    link.download = 'enhanced-property-photo.jpg';
+    link.click();
+  };
+
+  const resetTool = () => {
+    setUploadedImage(null);
+    setEnhancedImage(null);
+    setError(null);
+  };
+
+  return (
+    <div className="space-y-12">
+      <div className="glass border border-border/50 rounded-[2rem] p-8 md:p-12 shadow-2xl relative overflow-hidden">
+        <div className="absolute -top-24 -right-24 w-64 h-64 bg-foreground/5 rounded-full blur-3xl pointer-events-none" />
+        
+        <div className="relative z-10 space-y-10">
+          <div className="text-center space-y-4">
+            <h3 className="text-2xl font-bold text-foreground flex items-center justify-center gap-2">
+              <Sparkles className="w-6 h-6 text-primary" />
+              AI Photo Enhancement
+            </h3>
+            <p className="text-muted-foreground max-w-xl mx-auto text-sm">
+              Upload a property photo and our AI will automatically improve lighting, color balance, and clarity to make it look magazine-ready.
+            </p>
+          </div>
+
+          {!uploadedImage ? (
+            <div 
+              onDragOver={handleDragOver}
+              onDrop={handleDrop}
+              onClick={() => fileInputRef.current?.click()}
+              className="w-full aspect-video md:aspect-[21/9] rounded-3xl border-2 border-dashed border-border/50 hover:border-primary hover:bg-primary/5 transition-all flex flex-col items-center justify-center gap-4 text-muted-foreground hover:text-primary cursor-pointer group"
+            >
+              <div className="p-4 rounded-full bg-foreground/5 group-hover:bg-primary/10 transition-colors">
+                <Upload className="w-8 h-8" />
+              </div>
+              <div className="text-center space-y-1">
+                <p className="font-bold text-foreground">Drop your property photo here or click to upload</p>
+                <p className="text-xs uppercase tracking-widest">Supports JPG, PNG, WEBP</p>
+              </div>
+              <input 
+                type="file" 
+                ref={fileInputRef} 
+                onChange={handleImageUpload} 
+                accept="image/jpeg, image/png, image/webp" 
+                className="hidden" 
+              />
+            </div>
+          ) : (
+            <div className="space-y-8">
+              <div className="grid md:grid-cols-2 gap-8 items-center">
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between">
+                    <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">Original</span>
+                    <button 
+                      onClick={resetTool}
+                      className="text-[10px] font-bold text-muted-foreground hover:text-foreground uppercase tracking-widest transition-colors"
+                    >
+                      Change Photo
+                    </button>
+                  </div>
+                  <div className="aspect-video rounded-2xl overflow-hidden border border-border bg-black/50">
+                    <img src={uploadedImage} alt="Original" className="w-full h-full object-contain" />
+                  </div>
+                </div>
+
+                {enhancedImage ? (
+                  <div className="space-y-4">
+                    <div className="flex items-center justify-between">
+                      <span className="text-[10px] font-bold text-primary uppercase tracking-widest flex items-center gap-1">
+                        <Sparkles className="w-3 h-3" /> Enhanced
+                      </span>
+                    </div>
+                    <div className="aspect-video rounded-2xl overflow-hidden border border-primary/30 bg-black/50 shadow-2xl shadow-primary/10">
+                      <img src={enhancedImage} alt="Enhanced" className="w-full h-full object-contain" />
+                    </div>
+                  </div>
+                ) : (
+                  <div className="hidden md:flex flex-col items-center justify-center aspect-video rounded-2xl border border-dashed border-border/50 bg-foreground/5">
+                    {isEnhancing ? (
+                      <div className="flex flex-col items-center gap-4">
+                        <div className="w-8 h-8 border-2 border-primary/30 border-t-primary rounded-full animate-spin" />
+                        <span className="text-xs font-bold text-muted-foreground uppercase tracking-widest">AI is enhancing your photo...</span>
+                      </div>
+                    ) : (
+                      <span className="text-xs font-bold text-muted-foreground uppercase tracking-widest">Ready to enhance</span>
+                    )}
+                  </div>
+                )}
+              </div>
+
+              {userData && userData.plan_type !== 'Pro' && userData.plan_type !== 'Annual' && userData.credits_remaining <= 0 && (
+                <div className="p-4 bg-orange-500/10 border border-orange-500/20 rounded-2xl text-orange-500 text-sm font-medium flex items-center justify-between gap-3">
+                  <div className="flex items-center gap-3">
+                    <AlertCircle className="w-5 h-5 shrink-0" />
+                    <span>You've used all your free credits! Upgrade your plan to continue enhancing photos.</span>
+                  </div>
+                  <Link to="/pricing" className="px-4 py-2 bg-orange-500 text-white rounded-xl text-xs font-bold uppercase tracking-widest hover:bg-orange-600 transition-colors shrink-0">
+                    Upgrade
+                  </Link>
+                </div>
+              )}
+
+              {error && (
+                <div className="p-4 bg-red-500/10 border border-red-500/20 rounded-2xl text-red-500 text-sm font-medium flex items-center gap-3">
+                  <AlertCircle className="w-5 h-5 shrink-0" />
+                  <span>{error}</span>
+                </div>
+              )}
+
+              {!enhancedImage ? (
+                <button 
+                  onClick={handleEnhance}
+                  disabled={isEnhancing || (userData && userData.plan_type !== 'Pro' && userData.plan_type !== 'Annual' && userData.credits_remaining <= 0)}
+                  className="w-full group relative overflow-hidden bg-foreground text-background py-5 rounded-2xl font-bold flex items-center justify-center gap-3 transition-all hover:scale-[1.01] active:scale-[0.99] shadow-2xl shadow-foreground/10 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000" />
+                  {isEnhancing ? (
+                    <>
+                      <div className="w-5 h-5 border-2 border-background/30 border-t-background rounded-full animate-spin" />
+                      <span className="uppercase tracking-widest text-sm">Enhancing Photo...</span>
+                    </>
+                  ) : (
+                    <>
+                      <Sparkles className="w-5 h-5" />
+                      <span className="uppercase tracking-widest text-sm">Enhance Photo</span>
+                    </>
+                  )}
+                </button>
+              ) : (
+                <div className="grid grid-cols-2 gap-4">
+                  <button 
+                    onClick={resetTool}
+                    className="w-full py-5 rounded-2xl font-bold flex items-center justify-center gap-3 transition-all hover:bg-foreground/5 border border-border text-foreground"
+                  >
+                    <span className="uppercase tracking-widest text-sm">Try Another Photo</span>
+                  </button>
+                  <button 
+                    onClick={handleDownload}
+                    className="w-full group relative overflow-hidden bg-primary text-primary-foreground py-5 rounded-2xl font-bold flex items-center justify-center gap-3 transition-all hover:scale-[1.01] active:scale-[0.99] shadow-2xl shadow-primary/20"
+                  >
+                    <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000" />
+                    <Upload className="w-5 h-5 rotate-180" />
+                    <span className="uppercase tracking-widest text-sm">Download Enhanced Photo</span>
+                  </button>
+                </div>
+              )}
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+};
+
 export const DashboardPage = () => {
   const [searchParams] = useSearchParams();
-  const initialTool = searchParams.get('tool') as 'generate' | 'optimize' || 'generate';
-  const [activeTab, setActiveTab] = useState<'generate' | 'optimize'>(initialTool);
+  const initialTool = searchParams.get('tool') as 'generate' | 'optimize' | 'enhance' || 'generate';
+  const [activeTab, setActiveTab] = useState<'generate' | 'optimize' | 'enhance'>(initialTool);
   const navigate = useNavigate();
 
   return (
@@ -875,14 +1149,14 @@ export const DashboardPage = () => {
           <h1 className="text-5xl font-bold text-foreground mb-6 tracking-tighter">Listing Pilot</h1>
           <p className="text-muted-foreground max-w-xl mx-auto mb-12 font-medium">Transform your property marketing with our advanced AI tools.</p>
           
-          <div className="inline-flex p-1.5 bg-card border border-border rounded-2xl shadow-inner relative z-10">
-            {(['generate', 'optimize'] as const).map((tab) => (
+          <div className="inline-flex p-1.5 bg-card border border-border rounded-2xl shadow-inner relative z-10 overflow-x-auto max-w-full">
+            {(['generate', 'optimize', 'enhance'] as const).map((tab) => (
               <button
                 key={tab}
                 onClick={() => setActiveTab(tab)}
-                className={`px-10 py-3 rounded-xl text-xs font-bold uppercase tracking-widest transition-all relative z-10 ${activeTab === tab ? 'bg-primary text-primary-foreground shadow-lg' : 'text-muted-foreground hover:text-foreground'}`}
+                className={`px-6 md:px-10 py-3 rounded-xl text-xs font-bold uppercase tracking-widest transition-all relative z-10 whitespace-nowrap ${activeTab === tab ? 'bg-primary text-primary-foreground shadow-lg' : 'text-muted-foreground hover:text-foreground'}`}
               >
-                {tab} Listing
+                {tab === 'enhance' ? 'Enhance Photo' : `${tab} Listing`}
               </button>
             ))}
           </div>
@@ -894,7 +1168,7 @@ export const DashboardPage = () => {
           animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.4 }}
         >
-          {activeTab === 'generate' ? <GenerateTool /> : <OptimizeTool />}
+          {activeTab === 'generate' ? <GenerateTool /> : activeTab === 'optimize' ? <OptimizeTool /> : <EnhanceTool />}
         </motion.div>
         
         <div className="mt-24 text-center">
