@@ -23,11 +23,11 @@ export const PaymentSuccessPage = () => {
       setActivationError(null);
 
       try {
-        let planType: 'starter' | 'pro' | 'annual' | null = null;
+        let planType: 'Starter' | 'Pro' | 'Annual' | null = null;
         
-        if (planId === STARTER_PRODUCT_ID) planType = 'starter';
-        else if (planId === PRO_PRODUCT_ID) planType = 'pro';
-        else if (planId === ANNUAL_PRODUCT_ID) planType = 'annual';
+        if (planId === STARTER_PRODUCT_ID) planType = 'Starter';
+        else if (planId === PRO_PRODUCT_ID) planType = 'Pro';
+        else if (planId === ANNUAL_PRODUCT_ID) planType = 'Annual';
 
         if (planType) {
           await activateSubscription(planType);

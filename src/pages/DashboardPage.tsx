@@ -388,7 +388,7 @@ const GenerateTool = () => {
             />
           </div>
 
-          {userData && userData.plan !== 'pro' && userData.plan !== 'annual' && userData.credits <= 0 && (
+          {userData && userData.plan_type !== 'Pro' && userData.plan_type !== 'Annual' && userData.credits_remaining <= 0 && (
             <div className="p-4 bg-orange-500/10 border border-orange-500/20 rounded-2xl text-orange-500 text-sm font-medium flex items-center justify-between gap-3">
               <div className="flex items-center gap-3">
                 <AlertCircle className="w-5 h-5 shrink-0" />
@@ -402,7 +402,7 @@ const GenerateTool = () => {
 
           <button 
             onClick={handleGenerate}
-            disabled={isLoading || (userData && userData.plan !== 'pro' && userData.plan !== 'annual' && userData.credits <= 0)}
+            disabled={isLoading || (userData && userData.plan_type !== 'Pro' && userData.plan_type !== 'Annual' && userData.credits_remaining <= 0)}
             className="w-full group relative overflow-hidden bg-foreground text-background py-5 rounded-2xl font-bold flex items-center justify-center gap-3 transition-all hover:scale-[1.01] active:scale-[0.99] shadow-2xl shadow-foreground/10 disabled:opacity-50 disabled:cursor-not-allowed"
           >
             <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000" />
@@ -683,7 +683,7 @@ const OptimizeTool = () => {
             </div>
           </div>
 
-          {userData && userData.plan !== 'pro' && userData.plan !== 'annual' && userData.credits <= 0 && (
+          {userData && userData.plan_type !== 'Pro' && userData.plan_type !== 'Annual' && userData.credits_remaining <= 0 && (
             <div className="p-4 bg-orange-500/10 border border-orange-500/20 rounded-2xl text-orange-500 text-sm font-medium flex items-center justify-between gap-3">
               <div className="flex items-center gap-3">
                 <AlertCircle className="w-5 h-5 shrink-0" />
@@ -697,7 +697,7 @@ const OptimizeTool = () => {
 
           <button 
             onClick={handleOptimize}
-            disabled={isLoading || !formData.url || (userData && userData.plan !== 'pro' && userData.plan !== 'annual' && userData.credits <= 0)}
+            disabled={isLoading || !formData.url || (userData && userData.plan_type !== 'Pro' && userData.plan_type !== 'Annual' && userData.credits_remaining <= 0)}
             className="w-full group relative overflow-hidden bg-foreground text-background py-5 rounded-2xl font-bold flex items-center justify-center gap-3 transition-all hover:scale-[1.01] active:scale-[0.99] shadow-2xl shadow-foreground/10 disabled:opacity-50 disabled:cursor-not-allowed"
           >
             <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000" />

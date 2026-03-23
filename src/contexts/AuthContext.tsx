@@ -9,15 +9,15 @@ import {
 import { doc, getDoc, setDoc, updateDoc, increment, onSnapshot } from 'firebase/firestore';
 
 export interface UserData {
-  uid: string;
+  user_id: string;
   email: string;
-  displayName: string;
-  plan: 'free' | 'starter' | 'pro' | 'annual';
-  credits: number;
-  maxCredits: number;
-  subscriptionStatus: string;
-  createdAt: string;
-  updatedAt: string;
+  plan_type: string; // "Free", "Starter", "Pro", "Annual"
+  credits_remaining: number;
+  role: string;
+  login_provider: string;
+  account_created_at: string;
+  device_fingerprint?: string;
+  ip_address?: string;
 }
 
 interface AuthContextType {
@@ -32,7 +32,7 @@ interface AuthContextType {
   logout: () => Promise<void>;
   decrementCredits: () => Promise<boolean>;
   refreshUserData: () => Promise<void>;
-  activateSubscription: (plan: 'starter' | 'pro' | 'annual') => Promise<void>;
+  activateSubscription: (plan: 'Starter' | 'Pro' | 'Annual') => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -62,15 +62,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             setUserData(docSnap.data() as UserData);
           } else {
             const newUserData: UserData = {
-              uid: currentUser.uid,
+              user_id: currentUser.uid,
               email: currentUser.email || '',
-              displayName: currentUser.displayName || '',
-              plan: 'free',
-              credits: 3,
-              maxCredits: 3,
-              subscriptionStatus: 'none',
-              createdAt: new Date().toISOString(),
-              updatedAt: new Date().toISOString(),
+              plan_type: 'Free',
+              credits_remaining: 3,
+              role: 'user',
+              login_provider: 'google',
+              account_created_at: new Date().toISOString(),
             };
             await setDoc(userDocRef, newUserData);
             setUserData(newUserData);
@@ -108,14 +106,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const decrementCredits = async () => {
     if (!user || !userData) return false;
-    if (userData.plan === 'pro' || userData.plan === 'annual') return true;
-    if (userData.credits <= 0) return false;
+    if (userData.plan_type === 'Pro' || userData.plan_type === 'Annual') return true;
+    if (userData.credits_remaining <= 0) return false;
 
     try {
       const userRef = doc(db, 'users', user.uid);
       await updateDoc(userRef, {
-        credits: increment(-1),
-        updatedAt: new Date().toISOString()
+        credits_remaining: increment(-1)
       });
       return true;
     } catch (error) {
@@ -137,28 +134,22 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
-  const activateSubscription = async (plan: 'starter' | 'pro' | 'annual') => {
+  const activateSubscription = async (plan: 'Starter' | 'Pro' | 'Annual') => {
     if (!user) return;
     
-    let credits = 0;
-    let maxCredits = 0;
+    let credits_remaining = 0;
     
-    if (plan === 'starter') {
-      credits = 30;
-      maxCredits = 30;
-    } else if (plan === 'pro' || plan === 'annual') {
-      credits = 999999;
-      maxCredits = 999999;
+    if (plan === 'Starter') {
+      credits_remaining = 30;
+    } else if (plan === 'Pro' || plan === 'Annual') {
+      credits_remaining = 999999;
     }
 
     try {
       const userRef = doc(db, 'users', user.uid);
       await updateDoc(userRef, {
-        plan,
-        credits,
-        maxCredits,
-        subscriptionStatus: 'active',
-        updatedAt: new Date().toISOString()
+        plan_type: plan,
+        credits_remaining
       });
       await refreshUserData();
     } catch (error) {

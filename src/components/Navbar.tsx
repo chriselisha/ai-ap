@@ -74,11 +74,11 @@ export const Navbar = ({ theme, toggleTheme }: { theme: 'dark' | 'light', toggle
                 {userData && (
                   <div className="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-lg bg-primary/10 text-primary text-xs font-bold">
                     <Zap className="w-3.5 h-3.5" />
-                    {userData.plan === 'pro' || userData.plan === 'annual' 
+                    {userData.plan_type === 'Pro' || userData.plan_type === 'Annual' 
                       ? '∞ Unlimited' 
-                      : userData.plan === 'starter' 
-                        ? `${userData.credits} / 30 Credits`
-                        : `${userData.credits} Credits`}
+                      : userData.plan_type === 'Starter' 
+                        ? `${userData.credits_remaining} / 30 Credits`
+                        : `${userData.credits_remaining} Credits`}
                   </div>
                 )}
                 <div className="flex items-center gap-2">
