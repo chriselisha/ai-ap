@@ -1,16 +1,14 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
 import { motion } from 'motion/react';
-import { Check, Building2, Globe, Layout, Zap, Loader2 } from 'lucide-react';
+import { Check, Building2, Globe, Layout, Zap } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
-import { createDodoCheckout, STARTER_PRODUCT_ID, PRO_PRODUCT_ID, ANNUAL_PRODUCT_ID } from '../services/payments';
+import { getDodoCheckoutUrl, STARTER_PRODUCT_ID, PRO_PRODUCT_ID, ANNUAL_PRODUCT_ID } from '../services/payments';
 
 export const PricingPage = () => {
   const navigate = useNavigate();
   const { user, openLoginModal } = useAuth();
-  const [loadingPlan, setLoadingPlan] = useState<string | null>(null);
-  const [error, setError] = useState<string | null>(null);
 
   const plans = [
     {
@@ -65,27 +63,13 @@ export const PricingPage = () => {
     }
   ];
 
-  const handleSubscribe = async (planId: string, productId: string) => {
+  const handleSubscribe = (productId: string) => {
     if (!user) {
       openLoginModal();
       return;
     }
-
-    setLoadingPlan(planId);
-    setError(null);
-
-    try {
-      const paymentLink = await createDodoCheckout(
-        productId,
-        user.email || '',
-        user.displayName || 'Customer'
-      );
-      window.location.href = paymentLink;
-    } catch (err: any) {
-      console.error("Checkout error:", err);
-      setError(err.message || "Failed to start checkout process. Please try again.");
-      setLoadingPlan(null);
-    }
+    const url = getDodoCheckoutUrl(productId, user.email || '');
+    window.location.href = url;
   };
 
   return (
@@ -105,12 +89,6 @@ export const PricingPage = () => {
           <h1 className="text-6xl md:text-7xl font-bold text-foreground mb-8 tracking-tighter">Simple, Transparent Pricing</h1>
           <p className="text-muted-foreground text-xl max-w-2xl mx-auto font-medium">Choose the plan that fits your property marketing needs. Scale as you grow.</p>
         </div>
-
-        {error && (
-          <div className="max-w-2xl mx-auto mb-8 p-4 bg-red-500/10 border border-red-500/20 rounded-xl text-red-500 text-center text-sm font-medium">
-            {error}
-          </div>
-        )}
 
         <div className="grid lg:grid-cols-3 gap-8 mb-8">
           {plans.map((p, i) => (
@@ -146,18 +124,10 @@ export const PricingPage = () => {
 
               <div className="w-full mt-auto">
                 <button 
-                  onClick={() => handleSubscribe(p.id, p.productId)}
-                  disabled={loadingPlan === p.id}
-                  className={`w-full py-4 rounded-2xl font-bold uppercase tracking-widest text-xs flex items-center justify-center gap-2 transition-all ${p.popular ? 'bg-foreground text-background hover:scale-[1.02] active:scale-[0.98]' : 'bg-muted text-foreground hover:bg-muted/80'} ${loadingPlan === p.id ? 'opacity-70 cursor-not-allowed' : ''}`}
+                  onClick={() => handleSubscribe(p.productId)}
+                  className={`w-full py-4 rounded-2xl font-bold uppercase tracking-widest text-xs flex items-center justify-center gap-2 transition-all ${p.popular ? 'bg-foreground text-background hover:scale-[1.02] active:scale-[0.98]' : 'bg-muted text-foreground hover:bg-muted/80'}`}
                 >
-                  {loadingPlan === p.id ? (
-                    <>
-                      <Loader2 className="w-4 h-4 animate-spin" />
-                      Processing...
-                    </>
-                  ) : (
-                    'Subscribe'
-                  )}
+                  Subscribe
                 </button>
               </div>
             </motion.div>
